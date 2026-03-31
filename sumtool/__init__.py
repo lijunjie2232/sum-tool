@@ -5,7 +5,7 @@ Supports MD5, SHA1, SHA256, and SHA512 hash algorithms.
 """
 
 __version__ = "0.2.0"
-__author__ = "Your Name"
+__author__ = "lijunjie2232"
 
 from .calculator import calculate_checksums
 from .verifier import verify_checksums
