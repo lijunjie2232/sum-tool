@@ -127,7 +127,8 @@ def verify_checksums(
     Verify all files listed in a .sum file.
     
     Args:
-        directory: Directory containing the files to verify
+        directory: Directory containing the files to verify. If provided, used as base for relative paths.
+                   If not provided, uses .sum file's directory as base.
         sum_file: Path to the .sum file (optional, will search if not provided)
         threads: Number of parallel processes to use (default: 1)
         
@@ -152,14 +153,20 @@ def verify_checksums(
     # Detect algorithm from hash length
     algorithm = detect_algorithm(recorded_checksums)
     
-    # Get the base directory for relative paths
-    # The .sum file location is the reference point
-    sum_file_dir = os.path.dirname(os.path.abspath(sum_file))
+    # Determine the base directory for relative paths
+    # Priority 1: Use provided directory parameter (resolve relative to current working directory)
+    # Priority 2: Use .sum file's directory as fallback
+    if directory and directory != '.':
+        # User specified a directory - resolve it relative to current working directory
+        base_dir = os.path.abspath(directory)
+    else:
+        # No directory specified - use .sum file's directory as base
+        base_dir = os.path.dirname(os.path.abspath(sum_file))
     
     # Prepare verification tasks
     verification_tasks = []
     for expected_hash, rel_path in recorded_checksums:
-        abs_path = os.path.join(sum_file_dir, rel_path)
+        abs_path = os.path.join(base_dir, rel_path)
         verification_tasks.append((abs_path, expected_hash, algorithm))
     
     # Verify each file using multiprocessing

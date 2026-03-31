@@ -29,8 +29,9 @@ Examples:
   %(prog)s calc /path/to/dir                     Calculate SHA256 checksums
   %(prog)s calc dir1 dir2 -m md5                 Calculate MD5 checksums
   %(prog)s calc . -e "*.tmp" -e "node_modules"   Exclude patterns
-  %(prog)s verify /path/to/dir                   Verify files
-  %(prog)s verify -f checksums.sum               Verify with specific file
+  %(prog)s verify /path/to/dir                   Verify files in directory
+  %(prog)s verify -f checksums.sum               Verify using .sum file location
+  %(prog)s verify /other/path -f checksums.sum   Verify files in different path
         """
     )
     
@@ -87,7 +88,8 @@ Examples:
         'path',
         nargs='?',
         default='.',
-        help='Directory containing files to verify (default: current directory)'
+        help='Directory containing files to verify (default: current directory). '
+             'This directory is used as the base for resolving relative paths in the .sum file.'
     )
     verify_parser.add_argument(
         '-f', '--file',

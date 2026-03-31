@@ -324,3 +324,58 @@ class TestIntegration:
         # Verify in destination - should work because we use relative paths
         results = verify_checksums(dest_dir)
         assert all(r.status == 'OK' for r in results)
+
+    def test_verify_with_explicit_directory_parameter(self, test_dir):
+        """Test that explicit directory parameter is used as base path."""
+        # Create two directories
+        dir1 = os.path.join(test_dir, "dir1")
+        dir2 = os.path.join(test_dir, "dir2")
+        os.makedirs(dir1)
+        os.makedirs(dir2)
+        
+        # Create same file in both directories
+        file1_dir1 = os.path.join(dir1, "file.txt")
+        file1_dir2 = os.path.join(dir2, "file.txt")
+        
+        with open(file1_dir1, 'w') as f:
+            f.write("Content 1")
+        with open(file1_dir2, 'w') as f:
+            f.write("Content 2")
+        
+        # Generate checksums in dir1
+        sum_file = os.path.join(dir1, "checksums.sum")
+        calculate_checksums([dir1], output_file=sum_file)
+        
+        # Verify dir1 with explicit directory parameter - should pass
+        results = verify_checksums(dir1, sum_file)
+        assert all(r.status == 'OK' for r in results)
+        
+        # Verify dir2 with explicit directory parameter - should fail (different content)
+        results = verify_checksums(dir2, sum_file)
+        assert any(r.status == 'FAILED' for r in results)
+
+    def test_verify_directory_parameter_overrides_sum_file_location(self, test_dir):
+        """Test that directory parameter takes precedence over .sum file location."""
+        # Create directory structure
+        base_dir = os.path.join(test_dir, "base")
+        target_dir = os.path.join(test_dir, "target")
+        os.makedirs(base_dir)
+        os.makedirs(target_dir)
+        
+        # Create file in target
+        target_file = os.path.join(target_dir, "file.txt")
+        with open(target_file, 'w') as f:
+            f.write("Target content")
+        
+        # Generate checksums and move .sum file to base_dir
+        sum_file_in_target = os.path.join(target_dir, "checksums.sum")
+        calculate_checksums([target_dir], output_file=sum_file_in_target)
+        
+        # Move .sum file to base_dir
+        sum_file_in_base = os.path.join(base_dir, "checksums.sum")
+        shutil.move(sum_file_in_target, sum_file_in_base)
+        
+        # Verify with explicit directory pointing to target_dir
+        # Should use target_dir as base, not base_dir (where .sum file is)
+        results = verify_checksums(target_dir, sum_file_in_base)
+        assert all(r.status == 'OK' for r in results)
