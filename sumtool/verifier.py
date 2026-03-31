@@ -5,6 +5,7 @@ Reads .sum files and verifies that files match the recorded checksums.
 """
 
 import os
+import multiprocessing as mp
 from typing import List, Tuple, Optional
 from dataclasses import dataclass
 
@@ -76,6 +77,20 @@ def verify_single_file(
         )
 
 
+def verify_single_file_worker(args: Tuple[str, str, str]) -> VerificationResult:
+    """
+    Worker function for multiprocessing.Pool to verify a single file.
+    
+    Args:
+        args: Tuple of (file_path, expected_hash, algorithm)
+        
+    Returns:
+        VerificationResult object
+    """
+    file_path, expected_hash, algorithm = args
+    return verify_single_file(file_path, expected_hash, algorithm)
+
+
 def detect_algorithm(checksums: List[Tuple[str, str]]) -> str:
     """
     Detect the hash algorithm based on hash length.
@@ -105,7 +120,8 @@ def detect_algorithm(checksums: List[Tuple[str, str]]) -> str:
 
 def verify_checksums(
     directory: str,
-    sum_file: Optional[str] = None
+    sum_file: Optional[str] = None,
+    threads: int = 1
 ) -> List[VerificationResult]:
     """
     Verify all files listed in a .sum file.
@@ -113,6 +129,7 @@ def verify_checksums(
     Args:
         directory: Directory containing the files to verify
         sum_file: Path to the .sum file (optional, will search if not provided)
+        threads: Number of parallel processes to use (default: 1)
         
     Returns:
         List of VerificationResult objects
@@ -139,14 +156,26 @@ def verify_checksums(
     # The .sum file location is the reference point
     sum_file_dir = os.path.dirname(os.path.abspath(sum_file))
     
-    # Verify each file
-    results = []
+    # Prepare verification tasks
+    verification_tasks = []
     for expected_hash, rel_path in recorded_checksums:
-        # Construct absolute path from relative path
         abs_path = os.path.join(sum_file_dir, rel_path)
-        
-        result = verify_single_file(abs_path, expected_hash, algorithm)
-        results.append(result)
+        verification_tasks.append((abs_path, expected_hash, algorithm))
+    
+    # Verify each file using multiprocessing
+    results = []
+    
+    if threads > 1 and verification_tasks:
+        # Use multiprocessing Pool with imap for lazy evaluation
+        with mp.Pool(processes=threads) as pool:
+            # Use imap to process results as they become available
+            for result in pool.imap(verify_single_file_worker, verification_tasks):
+                results.append(result)
+    else:
+        # Single-threaded verification
+        for abs_path, expected_hash, algorithm in verification_tasks:
+            result = verify_single_file(abs_path, expected_hash, algorithm)
+            results.append(result)
     
     return results
 
