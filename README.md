@@ -23,7 +23,7 @@ pip install sum-tool
 ### From Source
 
 ```bash
-git clone https://github.com/yourusername/sum-tool.git
+git clone https://github.com/lijunjie2232/sum-tool.git
 cd sum-tool
 pip install -e .
 ```
