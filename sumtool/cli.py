@@ -64,6 +64,13 @@ Examples:
         metavar='FILE',
         help='Output file path (default: generates .sum file in current directory)'
     )
+    calc_parser.add_argument(
+        '-t', '--threads',
+        type=int,
+        default=1,
+        metavar='N',
+        help='Number of parallel processes to use (default: 1)'
+    )
     calc_parser.set_defaults(func=cmd_calc)
     
     # Verify command
@@ -86,6 +93,13 @@ Examples:
         '-v', '--verbose',
         action='store_true',
         help='Show all files including successfully verified ones'
+    )
+    verify_parser.add_argument(
+        '-t', '--threads',
+        type=int,
+        default=1,
+        metavar='N',
+        help='Number of parallel processes to use (default: 1)'
     )
     verify_parser.set_defaults(func=cmd_verify)
     
@@ -114,10 +128,11 @@ def cmd_calc(args: argparse.Namespace) -> int:
             paths=args.paths,
             algorithm=args.method,
             exclude_patterns=args.exclude_patterns,
-            output_file=output_file
+            output_file=output_file,
+            threads=args.threads
         )
         
-        print(f"Calculated checksums for {len(checksums)} file(s)")
+        print(f"Calculated checksums for {len(checksums)} file(s) using {args.threads} thread(s)")
         return 0
     
     except Exception as e:
@@ -139,7 +154,8 @@ def cmd_verify(args: argparse.Namespace) -> int:
         # Verify checksums
         results = verify_checksums(
             directory=args.path,
-            sum_file=args.file
+            sum_file=args.file,
+            threads=args.threads
         )
         
         # Print results
