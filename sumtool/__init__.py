@@ -4,7 +4,7 @@ sumtool - A Python tool for calculating and verifying file checksums.
 Supports MD5, SHA1, SHA256, and SHA512 hash algorithms.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Your Name"
 
 from .calculator import calculate_checksums
