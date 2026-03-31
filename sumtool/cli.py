@@ -62,7 +62,12 @@ Examples:
     calc_parser.add_argument(
         '-o', '--output',
         metavar='FILE',
-        help='Output file path (default: generates .sum file in current directory)'
+        help='Output file path (if not specified, print to stdout)'
+    )
+    calc_parser.add_argument(
+        '-q', '--quiet',
+        action='store_true',
+        help='Suppress output when no output file is specified'
     )
     calc_parser.add_argument(
         '-t', '--threads',
@@ -117,22 +122,21 @@ def cmd_calc(args: argparse.Namespace) -> int:
         Exit code (0 for success, non-zero for error)
     """
     try:
-        # Determine output file path
-        output_file = args.output
-        if output_file is None:
-            # Generate default filename based on algorithm
-            output_file = f"checksums_{args.method}.sum"
-        
         # Calculate checksums
         checksums = calculate_checksums(
             paths=args.paths,
             algorithm=args.method,
             exclude_patterns=args.exclude_patterns,
-            output_file=output_file,
-            threads=args.threads
+            output_file=args.output,
+            threads=args.threads,
+            quiet=args.quiet
         )
         
-        print(f"Calculated checksums for {len(checksums)} file(s) using {args.threads} thread(s)")
+        if args.output:
+            print(f"Calculated checksums for {len(checksums)} file(s) using {args.threads} thread(s)")
+        else:
+            if not args.quiet:
+                print(f"# Calculated checksums for {len(checksums)} file(s) using {args.threads} thread(s)")
         return 0
     
     except Exception as e:
