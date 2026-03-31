@@ -83,7 +83,8 @@ def calculate_checksums(
     algorithm: str = "sha256",
     exclude_patterns: Optional[List[str]] = None,
     output_file: Optional[str] = None,
-    threads: int = 1
+    threads: int = 1,
+    quiet: bool = False
 ) -> List[Tuple[str, str]]:
     """
     Calculate checksums for all files in the given paths.
@@ -92,8 +93,9 @@ def calculate_checksums(
         paths: List of directory or file paths to process
         algorithm: Hash algorithm to use (default: sha256)
         exclude_patterns: List of glob patterns to exclude
-        output_file: Optional path to write the checksums file
+        output_file: Optional path to write the checksums file (if None, print to stdout)
         threads: Number of parallel processes to use (default: 1)
+        quiet: If True and no output_file, don't print results (default: False)
         
     Returns:
         List of (hash_value, relative_path) tuples sorted by path
@@ -143,7 +145,7 @@ def calculate_checksums(
     # Sort checksums by relative path for consistent output
     checksums.sort(key=lambda x: x[1])
     
-    # Write to output file if specified
+    # Write to output file if specified, otherwise print to stdout
     if output_file:
         # Ensure output file has .sum extension
         if not output_file.endswith('.sum'):
@@ -154,7 +156,13 @@ def calculate_checksums(
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
         write_sum_file(checksums, output_file, algorithm)
-        print(f"Checksums written to: {output_file}")
+        if not quiet:
+            print(f"Checksums written to: {output_file}")
+    elif not quiet:
+        # Print results to stdout in standard checksum format
+        print(f"# {algorithm.upper()} checksums")
+        for hash_value, rel_path in checksums:
+            print(f"{hash_value}  {rel_path}")
     
     return checksums
 
