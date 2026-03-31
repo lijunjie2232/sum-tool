@@ -10,7 +10,7 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.8"
 authors = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "lijunjie2232", email = "li2533584225@gmail.com"}
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -34,8 +34,8 @@ keywords = ["checksum", "hash", "md5", "sha1", "sha256", "sha512", "verification
 sumtool = "sumtool.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/sum-tool"
-Repository = "https://github.com/yourusername/sum-tool.git"
+Homepage = "https://github.com/lijunjie2232/sum-tool"
+Repository = "https://github.com/lijunjie2232/sum-tool.git"
 
 [tool.setuptools.packages.find]
 exclude = ["tests", "tests.*"]
