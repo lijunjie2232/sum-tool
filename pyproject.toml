@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sum-tool"
+version = "0.1.0"
+description = "A tool for calculating and verifying file checksums"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.7"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Utilities",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+keywords = ["checksum", "hash", "md5", "sha1", "sha256", "sha512", "verification", "security"]
+
+[project.scripts]
+sumtool = "sumtool.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/sum-tool"
+Repository = "https://github.com/yourusername/sum-tool.git"
+
+[tool.setuptools.packages.find]
+exclude = ["tests", "tests.*"]
